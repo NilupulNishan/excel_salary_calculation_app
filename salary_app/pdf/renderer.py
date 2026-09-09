@@ -32,6 +32,18 @@ GUTTER = 22.0
 COL_W = (CONTENT_W - GUTTER) / 2
 COL_RIGHT_X = MARGIN + COL_W + GUTTER
 
+# --- letterhead geometry --------------------------------------------------
+# Named rather than inlined because the header is the one block where three
+# elements (mark, divider, text) have to agree on the same measurements.
+
+HEADER_TOP = MARGIN
+HEADER_H = 63.0                          # depth of the company text block
+LOGO_H = 40.0
+LOGO_COL_W = 84.0                        # mark (~65pt wide) plus breathing room
+DIVIDER_X = MARGIN + LOGO_COL_W
+DETAIL_X = DIVIDER_X + 18.0
+OFFICE_COL_W = (RIGHT - DETAIL_X) / 2
+
 #: (label, field). Totals are drawn separately so they can be emphasised
 #: without special-casing inside the row loop.
 EARNING_LINES = (
@@ -62,8 +74,8 @@ def render_payslip(slip: Payslip, path: Path | str) -> Path:
     c = _new_canvas(slip, path)
     g = Canvas(c)
 
-    _header(g)
-    top = _title(g, slip)
+    top = _header(g)
+    top = _title(g, slip, top)
     top = _employee_strip(g, slip, top)
     top = _breakdown(g, slip, top)
     top = _net_salary(g, slip, top)
@@ -89,19 +101,44 @@ def _new_canvas(slip: Payslip, path: Path):
     return c
 
 
-def _header(g: Canvas) -> None:
-    """Logo left, company details right-aligned against the margin."""
-    g.logo(MARGIN, MARGIN, 34)
-    g.text(RIGHT, MARGIN + 8, COMPANY.name, "Sans-Bold", 9.5, INK, align="right")
-    office, lines = COMPANY.offices[0]
-    g.text(RIGHT, MARGIN + 20, f"{lines[0]}, {lines[1]}", "Sans", 6.8,
-           INK_SOFT, align="right")
-    g.text(RIGHT, MARGIN + 29, f"{COMPANY.phone}   {COMPANY.website}",
-           "Sans", 6.8, INK_SOFT, align="right")
+def _header(g: Canvas) -> float:
+    """Letterhead: mark, divider, company block. Returns its bottom offset.
+
+    Three decisions worth naming.
+
+    **The logo is optically centred against the text block, not flush with its
+    top.** A mark is a single mass; a text block is a stack of baselines whose
+    visual centre sits below its first line. Flushing their tops -- what the
+    previous version did -- leaves the mark looking like it has slipped upward
+    even though both start on the same coordinate. Centring on one axis is what
+    makes the pairing read as deliberate.
+
+    **A divider rule instead of pushing the text to the right margin.** Right-
+    aligning the company details left a wide unexplained gap mid-header and gave
+    the two blocks no shared edge. A hairline supplies the edge and lets both
+    offices be set left-aligned, which is how addresses are read.
+
+    **Both offices print.** `config.COMPANY` declares two; the earlier header
+    showed `offices[0]` only, so the Development Center silently disappeared
+    from every slip.
+    """
+    top = HEADER_TOP
+    g.logo(MARGIN, top + (HEADER_H - LOGO_H) / 2, LOGO_H)
+    g.vrule(DIVIDER_X, top + 1, top + HEADER_H)
+
+    g.text(DETAIL_X, top + 9, COMPANY.name, "Sans-Bold", 10.5, INK)
+    for column, (office, lines) in enumerate(COMPANY.offices[:2]):
+        x = DETAIL_X + column * OFFICE_COL_W
+        g.text(x, top + 26, office.upper(), "Sans-Bold", 6.4, BRAND_DEEP)
+        for index, line in enumerate(lines[:2]):
+            g.text(x, top + 36 + index * 9.5, line, "Sans", 7, INK_SOFT)
+    g.text(DETAIL_X, top + 60, f"{COMPANY.phone}     {COMPANY.website}",
+           "Sans", 7, INK_SOFT)
+    return top + HEADER_H
 
 
-def _title(g: Canvas, slip: Payslip) -> float:
-    top = 118.0
+def _title(g: Canvas, slip: Payslip, top: float) -> float:
+    top += 38
     g.text(MARGIN, top, "Payslip", "Sans-Light", 30, INK)
     g.text(MARGIN, top + 18, slip.period, "Sans", 10, BRAND_DEEP)
     g.box(MARGIN, top + 28, 52, 3, fill=BRAND_CYAN)

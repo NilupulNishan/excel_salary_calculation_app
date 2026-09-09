@@ -200,6 +200,17 @@ class Canvas:
         y = self.y(top)
         self.c.line(x0, y, x1, y)
 
+    def vrule(self, x, top0, top1, color=RULE, width=0.6):
+        """Vertical hairline between two top-down offsets.
+
+        Drawn as a real stroked line rather than a 0.6pt filled box: a box that
+        thin lands between device pixels and prints as a smear or vanishes,
+        whereas a stroke is snapped by the renderer.
+        """
+        self.c.setStrokeColor(color)
+        self.c.setLineWidth(width)
+        self.c.line(x, self.y(top0), x, self.y(top1))
+
     def box(self, x, top, width, height, fill=None, stroke=None,
             line_width=0.6, radius=None):
         if fill:
