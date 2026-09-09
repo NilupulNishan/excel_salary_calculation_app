@@ -1,0 +1,10 @@
+# Development-only dependencies. NOT bundled into the shipped .exe.
+# Install:  .venv\Scripts\python.exe -m pip install -r requirements-dev.txt
+
+-r requirements.txt
+
+pytest==9.1.1          # test runner
+pymupdf==1.28.2        # PDF inspection for tests/analysis only.
+                       # NOTE: PyMuPDF is AGPL-3.0. It is deliberately kept out
+                       # of requirements.txt so it never ships in the binary --
+                       # pypdfium2 does the runtime rendering instead.

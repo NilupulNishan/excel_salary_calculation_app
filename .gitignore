@@ -1,0 +1,29 @@
+# --- Python ---------------------------------------------------------------
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+*.egg-info/
+
+# --- Build artefacts ------------------------------------------------------
+build/
+dist/
+*.spec.bak
+
+# --- App output -----------------------------------------------------------
+out/
+*.tmp
+
+# --- Test / tooling -------------------------------------------------------
+.pytest_cache/
+.coverage
+
+# --- Payroll data: NEVER commit ------------------------------------------
+# Real salary figures and employee PII. Keep these locally as references,
+# but they must not enter git history -- once committed they are effectively
+# permanent, even if deleted in a later commit.
+*.xlsx
+*.xlsm
+Pay Slip*.pdf
+WhatsApp Image*.jpeg
+samples/

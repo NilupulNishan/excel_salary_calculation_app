@@ -1,0 +1,7 @@
+# Runtime dependencies. Pinned exactly so the built .exe is reproducible.
+# Install:  .venv\Scripts\python.exe -m pip install -r requirements.txt
+
+openpyxl==3.1.5        # read the monthly payroll .xlsx (streaming, read-only)
+reportlab==5.0.1       # draw the payslip PDF as real vector text
+pypdfium2==5.13.0      # rasterise page 1 for the on-screen preview (Apache-2.0)
+pywebview==6.2.1       # native app window backed by Edge WebView2
