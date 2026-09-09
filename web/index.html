@@ -1,0 +1,87 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Softvil Salary Slips</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<!-- ============ SCREEN 1: upload ============ -->
+<section id="screen-upload" class="screen is-active">
+  <div class="upload-wrap">
+    <img src="logo-sm-01.png" alt="Softvil" class="upload-logo">
+    <h1>Upload monthly salary data</h1>
+    <p class="sub">Reads the <strong>Payment Summary</strong> sheet of your payroll workbook.</p>
+
+    <div id="dropzone" class="dropzone" tabindex="0" role="button"
+         aria-label="Choose or drop an Excel workbook">
+      <div class="plus">+</div>
+      <div class="dz-title">Drop the Excel file here</div>
+      <div class="dz-sub">or click to browse &middot; .xlsx, .xlsm</div>
+    </div>
+
+    <p id="upload-error" class="error" hidden></p>
+    <p id="upload-busy" class="busy" hidden>Reading workbook&hellip;</p>
+  </div>
+</section>
+
+<!-- ============ SCREEN 2: employee list ============ -->
+<section id="screen-list" class="screen">
+  <header class="bar">
+    <img src="logo-sm-01.png" alt="" class="bar-logo">
+    <div class="bar-meta">
+      <div class="bar-title" id="list-file">&nbsp;</div>
+      <div class="bar-sub" id="list-sheet">&nbsp;</div>
+    </div>
+    <button class="btn btn-ghost" id="btn-change">Change file</button>
+  </header>
+
+  <main class="list-main">
+    <div class="list-head">
+      <h2>Employees</h2>
+      <span class="count" id="list-count"></span>
+    </div>
+    <div id="employee-rows" class="rows"></div>
+    <p id="list-note" class="note" hidden></p>
+  </main>
+
+  <footer class="list-footer">
+    <button class="btn btn-ghost" id="btn-open-folder">Open output folder</button>
+    <button class="btn btn-primary" id="btn-export-all">Export All</button>
+  </footer>
+</section>
+
+<!-- ============ SCREEN 3: review ============ -->
+<section id="screen-review" class="screen">
+  <header class="bar">
+    <button class="btn btn-ghost" id="btn-back">&larr; Back</button>
+    <div class="bar-meta">
+      <div class="bar-title" id="review-name">&nbsp;</div>
+      <div class="bar-sub" id="review-period">&nbsp;</div>
+    </div>
+    <button class="btn btn-ghost" id="btn-print">Print</button>
+    <button class="btn btn-primary" id="btn-download">Download PDF</button>
+  </header>
+
+  <div class="review-body">
+    <aside class="form-pane">
+      <div id="review-alerts"></div>
+      <form id="slip-form" autocomplete="off"></form>
+    </aside>
+    <div class="preview-pane">
+      <div class="preview-frame">
+        <img id="preview-img" alt="Payslip preview">
+        <div id="preview-busy" class="preview-busy" hidden>Updating&hellip;</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div id="toast" class="toast" hidden></div>
+
+<script src="app.js"></script>
+</body>
+</html>
+
