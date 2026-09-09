@@ -23,7 +23,9 @@ from PIL import Image
 
 ROOT = Path(__file__).resolve().parent.parent
 SOURCE = ROOT / "web" / "logo-sm-01.png"
-TARGET = ROOT / "build" / "app.ico"
+#: packaging/, not build/: build/ is PyInstaller's scratch directory and is
+#: gitignored, so anything the build *needs* has to live outside it.
+TARGET = ROOT / "packaging" / "app.ico"
 
 SIZES = (16, 24, 32, 48, 64, 128, 256)
 
