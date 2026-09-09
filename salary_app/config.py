@@ -40,7 +40,13 @@ IS_FROZEN: bool = getattr(sys, "frozen", False)
 
 ASSETS_DIR: Path = resource_path("assets")
 WEB_DIR: Path = resource_path("web")
-LOGO_PATH: Path = ASSETS_DIR / "logo-sm-01.png"
+
+#: The logo lives in `web/` rather than `assets/` because pywebview serves the
+#: folder containing index.html and refuses anything above it -- `../assets/x`
+#: simply fails to load. Keeping the single copy inside the served root lets
+#: the UI reference it as a plain relative path while the PDF renderer reads
+#: the same file, so the two can never show different marks.
+LOGO_PATH: Path = WEB_DIR / "logo-sm-01.png"
 
 
 def output_dir() -> Path:
