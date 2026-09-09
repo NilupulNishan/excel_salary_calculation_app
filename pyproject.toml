@@ -1,0 +1,12 @@
+[project]
+name = "salary-slip-app"
+version = "0.1.0"
+description = "Local desktop app that turns the monthly payroll workbook into payslip PDFs"
+requires-python = ">=3.13"
+
+[tool.pytest.ini_options]
+# Without this, `import salary_app` in a test only resolves when pytest happens
+# to be invoked from the repository root. Pinning it here makes the suite work
+# from any working directory, including CI and the IDE test runner.
+pythonpath = ["."]
+testpaths = ["tests"]
