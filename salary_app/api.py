@@ -51,6 +51,20 @@ def guard(method):
     return wrapper
 
 
+def _dialog_types():
+    """pywebview's dialog constants, preferring the non-deprecated enum.
+
+    Imported lazily so this module can be imported (and unit-tested) without
+    pywebview present, and so the deprecated module-level constants are never
+    touched unless the enum is unavailable.
+    """
+    try:
+        from webview import FileDialog
+        return FileDialog.OPEN, FileDialog.SAVE
+    except (ImportError, AttributeError):
+        return 10, 30      # OPEN_DIALOG, SAVE_DIALOG
+
+
 class Api:
     """Backend for the three screens: upload, employee list, review."""
 
@@ -58,18 +72,29 @@ class Api:
         self.slips: list[Payslip] = []
         self.source_path: str = ""
         self.sheet_name: str = ""
-        self.window = None
+        # Underscore-prefixed on purpose. pywebview walks the public attributes
+        # of this object to expose it to JavaScript, and the Window it would
+        # find leads to the .NET Form via `.native`, whose
+        # `AccessibilityObject.Bounds.Empty` returns itself -- an infinite
+        # chain that blows the recursion limit and leaves the window never
+        # displayed. Keeping it private stops the walk from reaching it.
+        self._window = None
         self._temp = Path(tempfile.mkdtemp(prefix="salaryslip-"))
+
+    def set_window(self, window) -> None:
+        """Attach the pywebview Window. Must not be a public attribute."""
+        self._window = window
 
     # -- screen 1: loading a workbook ------------------------------------
 
     @guard
     def browse(self) -> dict:
         """Native file dialog, then load. Returns the same shape as `load_*`."""
-        if self.window is None:
+        if self._window is None:
             return _fail("Window not ready")
-        chosen = self.window.create_file_dialog(
-            10,  # webview.OPEN_DIALOG
+        open_dialog, _ = _dialog_types()
+        chosen = self._window.create_file_dialog(
+            open_dialog,
             allow_multiple=False,
             file_types=("Excel workbook (*.xlsx;*.xlsm)", "All files (*.*)"),
         )
@@ -192,6 +217,56 @@ class Api:
         ]
 
     # -- output ----------------------------------------------------------
+
+    @guard
+    def save_as(self, index: int) -> dict:
+        """Ask where to save, then write the PDF there.
+
+        `export_one` writes silently to a fixed folder, which gives the user no
+        signal that anything happened -- the file lands somewhere they may not
+        know about and only a brief toast appears. "Download" implies choosing
+        a destination, so this is what the Download button calls.
+        """
+        slip = self._slip(index)
+        missing = missing_required(slip)
+        if missing:
+            return _fail("Cannot save yet - missing: " + ", ".join(missing))
+
+        folder = output_dir()
+        folder.mkdir(parents=True, exist_ok=True)
+
+        target = None
+        if self._window is not None:
+            _, save_dialog = _dialog_types()
+            chosen = self._window.create_file_dialog(
+                save_dialog,
+                directory=str(folder),
+                save_filename=slip.output_filename(),
+                file_types=("PDF document (*.pdf)",),
+            )
+            # Backends return a string or a one-item sequence depending on
+            # platform; normalise both, and treat empty as cancelled.
+            if isinstance(chosen, (list, tuple)):
+                chosen = chosen[0] if chosen else None
+            if not chosen:
+                return {"ok": True, "cancelled": True}
+            target = Path(chosen)
+            if target.suffix.lower() != ".pdf":
+                target = target.with_suffix(".pdf")
+        else:
+            target = folder / slip.output_filename()
+
+        render_payslip(slip, target)
+        return {"ok": True, "path": str(target), "folder": str(target.parent)}
+
+    @guard
+    def reveal(self, path: str) -> dict:
+        """Open Explorer with the file selected, so the user can see it exists."""
+        target = Path(path)
+        if not target.exists():
+            return _fail(f"File not found: {target}")
+        subprocess.Popen(["explorer", "/select,", str(target)])   # noqa: S607
+        return {"ok": True}
 
     @guard
     def export_one(self, index: int) -> dict:

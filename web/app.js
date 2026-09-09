@@ -26,13 +26,14 @@ function show(screenId) {
 }
 
 let toastTimer = null;
-function toast(message, isError = false) {
+function toast(message, isError = false, ms = 0) {
   const el = $('toast');
   el.textContent = message;
   el.classList.toggle('is-error', isError);
   el.hidden = false;
   clearTimeout(toastTimer);
-  toastTimer = setTimeout(() => { el.hidden = true; }, isError ? 7000 : 3500);
+  const linger = ms || (isError ? 7000 : 3500);
+  toastTimer = setTimeout(() => { el.hidden = true; }, linger);
 }
 
 /** Every backend call returns {ok, error}. Surface failures instead of
@@ -342,8 +343,19 @@ function initEvents() {
 
   $('btn-download').addEventListener('click', async () => {
     await saveNow();
-    const result = await call(() => api().export_one(state.index));
-    if (result) toast(`Saved to ${result.path}`);
+    const button = $('btn-download');
+    button.disabled = true;
+    try {
+      // save_as opens a native Save dialog. Writing silently to a fixed folder
+      // gave no visible signal and read as "the button does nothing".
+      const result = await call(() => api().save_as(state.index));
+      if (!result || result.cancelled) return;
+      toast(`Saved to ${result.path}`, false, 8000);
+      // Show it in Explorer so the file is unmistakably there.
+      call(() => api().reveal(result.path));
+    } finally {
+      button.disabled = false;
+    }
   });
 
   $('btn-print').addEventListener('click', async () => {

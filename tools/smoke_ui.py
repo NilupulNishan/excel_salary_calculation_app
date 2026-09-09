@@ -131,7 +131,7 @@ def main() -> int:
         js_api=api,
         width=1280, height=860,
     )
-    api.window = window
+    api.set_window(window)
 
     print("driving the real window...")
     threading.Thread(target=drive, args=(window,), daemon=True).start()
