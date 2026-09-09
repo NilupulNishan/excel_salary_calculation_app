@@ -46,7 +46,7 @@ def workbook(tmp_path):
 def out_dir(tmp_path, monkeypatch):
     """Redirect exports so tests never write to the user's Documents folder."""
     target = tmp_path / "output"
-    monkeypatch.setattr(api_module, "output_dir", lambda: target)
+    monkeypatch.setattr(api_module.settings, "output_folder", lambda: target)
     return target
 
 

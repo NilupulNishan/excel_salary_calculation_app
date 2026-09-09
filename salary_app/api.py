@@ -19,7 +19,7 @@ import tempfile
 import traceback
 from pathlib import Path
 
-from .config import output_dir
+from . import settings
 from .excel_reader import WorkbookError, read_payslips
 from .models import (
     DEDUCTION_FIELDS, EARNINGS_FIELDS, COMPANY_FIELDS, FIELD_LABELS,
@@ -51,18 +51,27 @@ def guard(method):
     return wrapper
 
 
-def _dialog_types():
-    """pywebview's dialog constants, preferring the non-deprecated enum.
+def _open_dialog():
+    """pywebview's "open file" dialog constant, preferring the modern enum.
 
-    Imported lazily so this module can be imported (and unit-tested) without
-    pywebview present, and so the deprecated module-level constants are never
-    touched unless the enum is unavailable.
+    Imported lazily so this module stays importable (and unit-testable) without
+    pywebview, and so pywebview's deprecated module-level constants are only
+    touched if the enum is unavailable.
     """
     try:
         from webview import FileDialog
-        return FileDialog.OPEN, FileDialog.SAVE
+        return FileDialog.OPEN
     except (ImportError, AttributeError):
-        return 10, 30      # OPEN_DIALOG, SAVE_DIALOG
+        return 10
+
+
+def _folder_dialog():
+    """pywebview's "choose folder" dialog constant."""
+    try:
+        from webview import FileDialog
+        return FileDialog.FOLDER
+    except (ImportError, AttributeError):
+        return 20
 
 
 class Api:
@@ -92,9 +101,8 @@ class Api:
         """Native file dialog, then load. Returns the same shape as `load_*`."""
         if self._window is None:
             return _fail("Window not ready")
-        open_dialog, _ = _dialog_types()
         chosen = self._window.create_file_dialog(
-            open_dialog,
+            _open_dialog(),
             allow_multiple=False,
             file_types=("Excel workbook (*.xlsx;*.xlsm)", "All files (*.*)"),
         )
@@ -219,45 +227,44 @@ class Api:
     # -- output ----------------------------------------------------------
 
     @guard
-    def save_as(self, index: int) -> dict:
-        """Ask where to save, then write the PDF there.
+    def get_output_folder(self) -> dict:
+        """The folder payslips are written to, and whether it is the default."""
+        folder = settings.output_folder()
+        return {
+            "ok": True,
+            "folder": str(folder),
+            "isDefault": folder == settings.default_output_folder(),
+            "exists": folder.exists(),
+        }
 
-        `export_one` writes silently to a fixed folder, which gives the user no
-        signal that anything happened -- the file lands somewhere they may not
-        know about and only a brief toast appears. "Download" implies choosing
-        a destination, so this is what the Download button calls.
+    @guard
+    def choose_output_folder(self) -> dict:
+        """Pick the output folder once, instead of a dialog on every save.
+
+        Set on the upload screen so the destination is visible before any work
+        starts -- previously slips landed in a fixed folder with only a brief
+        toast to say so, which read as "the button does nothing".
         """
-        slip = self._slip(index)
-        missing = missing_required(slip)
-        if missing:
-            return _fail("Cannot save yet - missing: " + ", ".join(missing))
+        if self._window is None:
+            return _fail("Window not ready")
 
-        folder = output_dir()
+        current = settings.output_folder()
+        chosen = self._window.create_file_dialog(
+            _folder_dialog(), directory=str(current))
+        # Backends return a string or a one-item sequence; normalise both.
+        if isinstance(chosen, (list, tuple)):
+            chosen = chosen[0] if chosen else None
+        if not chosen:
+            return {"ok": True, "cancelled": True}
+
+        folder = settings.set_output_folder(chosen)
         folder.mkdir(parents=True, exist_ok=True)
-
-        target = None
-        if self._window is not None:
-            _, save_dialog = _dialog_types()
-            chosen = self._window.create_file_dialog(
-                save_dialog,
-                directory=str(folder),
-                save_filename=slip.output_filename(),
-                file_types=("PDF document (*.pdf)",),
-            )
-            # Backends return a string or a one-item sequence depending on
-            # platform; normalise both, and treat empty as cancelled.
-            if isinstance(chosen, (list, tuple)):
-                chosen = chosen[0] if chosen else None
-            if not chosen:
-                return {"ok": True, "cancelled": True}
-            target = Path(chosen)
-            if target.suffix.lower() != ".pdf":
-                target = target.with_suffix(".pdf")
-        else:
-            target = folder / slip.output_filename()
-
-        render_payslip(slip, target)
-        return {"ok": True, "path": str(target), "folder": str(target.parent)}
+        return {
+            "ok": True,
+            "folder": str(folder),
+            "isDefault": folder == settings.default_output_folder(),
+            "exists": folder.exists(),
+        }
 
     @guard
     def reveal(self, path: str) -> dict:
@@ -274,9 +281,10 @@ class Api:
         missing = missing_required(slip)
         if missing:
             return _fail("Cannot export yet - missing: " + ", ".join(missing))
-        target = output_dir() / slip.output_filename()
+        folder = settings.output_folder()
+        target = folder / slip.output_filename()
         render_payslip(slip, target)
-        return {"ok": True, "path": str(target), "folder": str(output_dir())}
+        return {"ok": True, "path": str(target), "folder": str(folder)}
 
     @guard
     def export_all(self) -> dict:
@@ -288,7 +296,7 @@ class Api:
         if not self.slips:
             return _fail("No workbook loaded")
 
-        folder = output_dir()
+        folder = settings.output_folder()
         written: list[str] = []
         skipped: list[dict] = []
         for index, slip in enumerate(self.slips):
@@ -332,7 +340,7 @@ class Api:
 
     @guard
     def open_folder(self) -> dict:
-        folder = output_dir()
+        folder = settings.output_folder()
         folder.mkdir(parents=True, exist_ok=True)
         subprocess.Popen(["explorer", str(folder)])         # noqa: S607
         return {"ok": True, "folder": str(folder)}

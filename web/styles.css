@@ -49,20 +49,25 @@ html, body {
 .btn:disabled { opacity: .45; cursor: not-allowed; }
 
 /* ============ screen 1: upload ============ */
+/* The upload screen scrolls if the window is short: the output-folder block
+   below the dropzone otherwise falls below the fold on an 860px window, and a
+   setting the user cannot see is a setting they will not use. */
+#screen-upload { overflow-y: auto; }
+
 .upload-wrap {
   margin: auto;
   width: min(560px, 90vw);
   text-align: center;
-  padding: 32px 0;
+  padding: 24px 0;
 }
-.upload-logo { width: 132px; height: auto; margin-bottom: 28px; }
-.upload-wrap h1 { font-size: 24px; font-weight: 600; margin: 0 0 6px; }
-.upload-wrap .sub { color: var(--ink-soft); margin: 0 0 28px; }
+.upload-logo { width: 108px; height: auto; margin-bottom: 16px; }
+.upload-wrap h1 { font-size: 22px; font-weight: 600; margin: 0 0 5px; }
+.upload-wrap .sub { color: var(--ink-soft); margin: 0 0 20px; font-size: 13px; }
 
 .dropzone {
   border: 2px dashed #c3ccd4;
   border-radius: 14px;
-  padding: 44px 24px;
+  padding: 30px 24px;
   cursor: pointer;
   background: #fcfdfe;
   transition: border-color .15s, background .15s;
@@ -76,6 +81,25 @@ html, body {
 }
 .dz-title { font-weight: 600; margin-bottom: 4px; }
 .dz-sub { color: var(--ink-soft); font-size: 13px; }
+
+/* output folder setting, below the dropzone */
+.output-setting {
+  margin-top: 20px; padding-top: 16px; border-top: 1px solid var(--rule);
+  text-align: left;
+}
+.os-label {
+  font-size: 11px; font-weight: 700; letter-spacing: .06em;
+  text-transform: uppercase; color: var(--ink-soft); margin-bottom: 7px;
+}
+.os-row { display: flex; align-items: center; gap: 10px; }
+.os-path {
+  flex: 1; min-width: 0; font-size: 13px;
+  padding: 7px 10px; border: 1px solid var(--rule); border-radius: 5px;
+  background: var(--band); color: var(--ink);
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+  direction: rtl; text-align: left;   /* keep the folder name visible when long */
+}
+.os-hint { font-size: 12px; color: var(--ink-soft); margin-top: 6px; min-height: 15px; }
 
 .error {
   color: var(--danger); background: #fdf3f2; border: 1px solid #f3d3d0;

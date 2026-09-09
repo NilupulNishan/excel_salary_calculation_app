@@ -134,6 +134,30 @@ function onLoaded(result) {
   show('screen-list');
 }
 
+/* ---------- output folder setting ---------- */
+
+/** Reflect the current output folder in the upload screen. */
+function showOutputFolder(result) {
+  if (!result || !result.folder) return;
+  const path = $('output-folder');
+  path.textContent = result.folder;
+  path.title = result.folder;
+  $('output-hint').textContent = result.isDefault
+    ? 'Default location. Every payslip you download or export is saved here.'
+    : 'Every payslip you download or export is saved here.';
+}
+
+async function loadOutputFolder() {
+  showOutputFolder(await call(() => api().get_output_folder()));
+}
+
+async function chooseOutputFolder() {
+  const result = await call(() => api().choose_output_folder());
+  if (!result || result.cancelled) return;
+  showOutputFolder(result);
+  toast(`Payslips will be saved to ${result.folder}`, false, 6000);
+}
+
 /* ---------- screen 2: employee list ---------- */
 
 function renderList() {
@@ -346,12 +370,12 @@ function initEvents() {
     const button = $('btn-download');
     button.disabled = true;
     try {
-      // save_as opens a native Save dialog. Writing silently to a fixed folder
-      // gave no visible signal and read as "the button does nothing".
-      const result = await call(() => api().save_as(state.index));
-      if (!result || result.cancelled) return;
+      const result = await call(() => api().export_one(state.index));
+      if (!result) return;
+      // The old version only flashed a 3.5s toast, so a successful save looked
+      // like nothing happened. Linger, and open Explorer with the file
+      // selected so it is unmistakably there.
       toast(`Saved to ${result.path}`, false, 8000);
-      // Show it in Explorer so the file is unmistakably there.
       call(() => api().reveal(result.path));
     } finally {
       button.disabled = false;
@@ -368,4 +392,6 @@ function initEvents() {
 window.addEventListener('pywebviewready', () => {
   initUpload();
   initEvents();
+  $('btn-choose-folder').addEventListener('click', chooseOutputFolder);
+  loadOutputFolder();
 });
