@@ -1,9 +1,14 @@
 """The payslip layout.
 
-One design, chosen from three candidates on 2026-09-09: airy, rule-light, with
-brand cyan used only as an accent. Cyan never carries meaning on its own, so
-nothing is lost when the page is printed in mono -- structure comes from bands,
-weight and spacing, which survive a laser printer.
+Airy and rule-light, with brand cyan as an accent only: it appears as rules,
+bars and a tinted panel, never as text. That is deliberate -- cyan is 1.85:1 on
+white and unreadable as type -- and it means nothing is lost when the page
+prints in mono, where structure still comes from weight, spacing and bands.
+
+Every size on this page comes from `theme`'s six-role scale, and every colour
+from `theme.PALETTE`. Nothing here carries a raw number or a hex value: the
+page previously held thirteen type sizes, four of which were doing the same job
+because each call site picked its own.
 
 Every value is drawn as a **text object**, never an image. The exported PDF is
 selectable, copyable and machine-extractable; `tests/test_renderer.py` asserts
@@ -22,15 +27,22 @@ from reportlab.pdfgen import canvas as rl_canvas
 from ..config import COMPANY, CURRENCY_CODE
 from ..models import Payslip
 from .theme import (
-    BAND, BAND_DEEP, BRAND_CYAN, BRAND_DEEP, INK, INK_SOFT, MARGIN,
-    PAGE_H, PAGE_W, RULE, Canvas, register_fonts,
+    BAND, BAND_DEEP, BAND_PAD, BAND_RADIUS, BODY, BRAND_CYAN, BRAND_DEEP,
+    DISPLAY, FIGURE, FINE, INK, INK_SOFT, LEAD, MARGIN, PAGE_H, PAGE_W,
+    ROW_PAD, RULE, SPACE_LG, SPACE_MD, SPACE_SM, SPACE_XL, Canvas,
+    register_fonts,
 )
 
 CONTENT_W = PAGE_W - 2 * MARGIN
 RIGHT = PAGE_W - MARGIN
-GUTTER = 22.0
+GUTTER = SPACE_LG
 COL_W = (CONTENT_W - GUTTER) / 2
 COL_RIGHT_X = MARGIN + COL_W + GUTTER
+
+#: Distance between the two column axes. The employee strip uses this too, so
+#: its two fields sit on the same rhythm as the breakdown beneath them -- they
+#: previously sat at an arbitrary MARGIN + 300, which was 33pt off the grid.
+COL_PITCH = COL_W + GUTTER
 
 # --- letterhead geometry --------------------------------------------------
 # Named rather than inlined because the header is the one block where three
@@ -43,6 +55,14 @@ LOGO_COL_W = 84.0                        # mark (~65pt wide) plus breathing room
 DIVIDER_X = MARGIN + LOGO_COL_W
 DETAIL_X = DIVIDER_X + 18.0
 OFFICE_COL_W = (RIGHT - DETAIL_X) / 2
+
+ROW_STEP = 15.0                          # baseline pitch inside the breakdown
+
+#: Employee-strip metrics. Named because the band's height is computed from
+#: them: a literal that disagrees with the leading used to draw the text is
+#: how a wrapped job title came to spill below its band.
+LABEL_ROW_TOP = 30.0                     # the DESIGNATION label's baseline
+DESIGNATION_LEADING = 10.5               # line height of the wrapped title
 
 #: (label, field). Totals are drawn separately so they can be emphasised
 #: without special-casing inside the row loop.
@@ -61,7 +81,7 @@ DEDUCTION_LINES = (
 )
 COMPANY_LINES = (("EPF 12%", "epf_company"), ("ETF 3%", "etf_company"))
 
-FOOTER_COPYRIGHT = "Copyright © 2026 Softvil Technologies (Private) Limited"
+FOOTER_COPYRIGHT = "Copyright ©  2026 Softvil Technologies (Private) Limited - nilupul.ai"
 FOOTER_NOTE = "Computer-generated payslip. No signature required."
 
 
@@ -108,17 +128,16 @@ def _header(g: Canvas) -> float:
 
     **The logo is optically centred against the text block, not flush with its
     top.** A mark is a single mass; a text block is a stack of baselines whose
-    visual centre sits below its first line. Flushing their tops -- what the
-    previous version did -- leaves the mark looking like it has slipped upward
-    even though both start on the same coordinate. Centring on one axis is what
-    makes the pairing read as deliberate.
+    visual centre sits below its first line. Flushing their tops leaves the
+    mark looking like it has slipped upward even though both start on the same
+    coordinate.
 
     **A divider rule instead of pushing the text to the right margin.** Right-
     aligning the company details left a wide unexplained gap mid-header and gave
     the two blocks no shared edge. A hairline supplies the edge and lets both
     offices be set left-aligned, which is how addresses are read.
 
-    **Both offices print.** `config.COMPANY` declares two; the earlier header
+    **Both offices print.** `config.COMPANY` declares two; an earlier header
     showed `offices[0]` only, so the Development Center silently disappeared
     from every slip.
     """
@@ -126,45 +145,63 @@ def _header(g: Canvas) -> float:
     g.logo(MARGIN, top + (HEADER_H - LOGO_H) / 2, LOGO_H)
     g.vrule(DIVIDER_X, top + 1, top + HEADER_H)
 
-    g.text(DETAIL_X, top + 9, COMPANY.name, "Sans-Bold", 10.5, INK)
+    g.text(DETAIL_X, top + 9, COMPANY.name, "Sans-Bold", LEAD, INK)
     for column, (office, lines) in enumerate(COMPANY.offices[:2]):
         x = DETAIL_X + column * OFFICE_COL_W
-        g.text(x, top + 26, office.upper(), "Sans-Bold", 6.4, BRAND_DEEP)
+        g.micro(x, top + 26, office.upper(), BRAND_DEEP)
         for index, line in enumerate(lines[:2]):
-            g.text(x, top + 36 + index * 9.5, line, "Sans", 7, INK_SOFT)
+            g.text(x, top + 36 + index * 9.5, line, "Sans", FINE, INK_SOFT)
     g.text(DETAIL_X, top + 60, f"{COMPANY.phone}     {COMPANY.website}",
-           "Sans", 7, INK_SOFT)
+           "Sans", FINE, INK_SOFT)
     return top + HEADER_H
 
 
 def _title(g: Canvas, slip: Payslip, top: float) -> float:
-    top += 38
-    g.text(MARGIN, top, "Payslip", "Sans-Light", 30, INK)
-    g.text(MARGIN, top + 18, slip.period, "Sans", 10, BRAND_DEEP)
+    """Document title and period, over a short accent rule."""
+    top += SPACE_XL
+    g.text(MARGIN, top, "Payslip", "Sans-Light", DISPLAY, INK)
+    g.text(MARGIN, top + 18, slip.period, "Sans", LEAD, BRAND_DEEP)
     g.box(MARGIN, top + 28, 52, 3, fill=BRAND_CYAN)
     return top + 58
 
 
 def _employee_strip(g: Canvas, slip: Payslip, top: float) -> float:
-    """Employee identity.
+    """Employee identity, on the page's column grid.
 
-    Every field here is label-above-value on a shared baseline grid. An earlier
-    draft put Designation's label to the *left* of its value while the other
-    two were stacked, which read as a misalignment even though nothing was
-    strictly out of place.
+    Two fixes live here.
+
+    **The second column sits one COL_PITCH from the first**, so Employee and
+    Emp No share the rhythm of the Earnings/Deductions columns below. It was
+    previously `MARGIN + 300` -- an arbitrary number, and 33pt off the grid.
+
+    **The band is sized from the wrapped designation**, not fixed at 62pt. A
+    job title long enough to wrap put its second line below the band's bottom
+    edge; today's titles happen to fit on one line, so it never showed.
     """
-    g.box(MARGIN, top - 14, CONTENT_W, 62, fill=BAND, radius=4)
+    label_x = (MARGIN + BAND_PAD, MARGIN + BAND_PAD + COL_PITCH)
+    text_w = CONTENT_W - 2 * BAND_PAD
 
-    label_x = (MARGIN + 14, MARGIN + 300)
+    # DESIGNATION_LEADING is used to size the band AND to draw the text, so
+    # the two cannot drift apart. They were two separate 10.5 literals, which
+    # is how the band came to be too short for a wrapped title in the first
+    # place.
+    lines = g.wrap_lines(slip.designation, text_w, "Sans", BODY)
+    designation_top = LABEL_ROW_TOP + SPACE_MD - 2
+    band_h = (designation_top
+              + max(len(lines), 1) * DESIGNATION_LEADING
+              + SPACE_SM)
+    g.box(MARGIN, top - BAND_PAD, CONTENT_W, band_h, fill=BAND,
+          radius=BAND_RADIUS)
+
     row_one = (("EMPLOYEE", slip.employee_name), ("EMP NO", slip.employee_number))
     for x, (label, value) in zip(label_x, row_one):
-        g.text(x, top, label, "Sans-Bold", 6.5, INK_SOFT)
-        g.text(x, top + 13, value, "Sans", 10.5, INK)
+        g.micro(x, top, label)
+        g.text(x, top + 13, value, "Sans", LEAD, INK)
 
-    g.text(label_x[0], top + 30, "DESIGNATION", "Sans-Bold", 6.5, INK_SOFT)
-    g.wrapped(label_x[0], top + 42, slip.designation, CONTENT_W - 28,
-              "Sans", 9, INK, leading=10.5)
-    return top + 82
+    g.micro(label_x[0], top + LABEL_ROW_TOP, "DESIGNATION")
+    g.wrapped(label_x[0], top + designation_top, slip.designation, text_w,
+              "Sans", BODY, INK, leading=DESIGNATION_LEADING)
+    return top - BAND_PAD + band_h + SPACE_LG
 
 
 def _breakdown(g: Canvas, slip: Payslip, top: float) -> float:
@@ -184,55 +221,61 @@ def _column(g, x, top, heading, lines, slip, total_label, total_field,
     `pad_to` keeps both columns the same number of rows so Gross Pay and Total
     Deduction land on one line -- five earnings against four deductions would
     otherwise leave the two totals at different heights.
+
+    Rows and their total share BODY; the weight separates them, which is what
+    was already doing the work when the two sizes were 8.4 and 8.6.
     """
-    g.text(x, top, heading, "Sans-Bold", 7, INK_SOFT)
+    g.micro(x, top, heading)
     g.box(x, top + 6, COL_W, 1.2, fill=BRAND_CYAN)
 
-    y = top + 22
+    y = top + SPACE_LG
     for index in range(max(len(lines), pad_to)):
         if index < len(lines):
             # Band only real rows. Striping a padding row draws an empty grey
             # bar that reads as a line whose value failed to render.
             if index % 2 == 0:
-                g.box(x, y - 9, COL_W, 15, fill=BAND)
+                g.box(x, y - 9, COL_W, ROW_STEP, fill=BAND)
             label, field = lines[index]
-            g.text(x + 8, y, label, "Sans", 8.4, INK)
-            g.text(x + COL_W - 8, y, slip.display(field), "Sans", 8.4, INK,
-                   align="right")
-        y += 15
+            g.text(x + ROW_PAD, y, label, "Sans", BODY, INK)
+            g.text(x + COL_W - ROW_PAD, y, slip.display(field), "Sans", BODY,
+                   INK, align="right")
+        y += ROW_STEP
 
     y += 6
     g.rule(x, y - 9, x + COL_W, RULE)
-    g.text(x + 8, y, total_label, "Sans-Bold", 8.6, INK)
-    g.text(x + COL_W - 8, y, slip.display(total_field), "Sans-Bold", 8.6, INK,
-           align="right")
+    g.text(x + ROW_PAD, y, total_label, "Sans-Bold", BODY, INK)
+    g.text(x + COL_W - ROW_PAD, y, slip.display(total_field), "Sans-Bold",
+           BODY, INK, align="right")
     return y
 
 
 def _net_salary(g: Canvas, slip: Payslip, top: float) -> float:
     """The figure the employee actually looks for, given the most weight."""
-    top += 26
-    g.box(MARGIN, top - 16, CONTENT_W, 52, fill=BAND_DEEP, radius=4)
+    top += SPACE_LG + 4
+    g.box(MARGIN, top - 16, CONTENT_W, 52, fill=BAND_DEEP, radius=BAND_RADIUS)
     g.box(MARGIN, top - 16, 3, 52, fill=BRAND_CYAN)
-    g.text(MARGIN + 16, top, "NET SALARY", "Sans-Bold", 7, INK_SOFT)
-    g.text(MARGIN + 16, top + 18, slip.display("net_salary"), "Sans-Bold", 19, INK)
-    g.text(RIGHT - 16, top + 18, CURRENCY_CODE, "Sans", 9, INK_SOFT, align="right")
-    g.text(MARGIN + 16, top + 31, slip.amount_in_words, "Sans", 7.4, INK_SOFT)
+    g.micro(MARGIN + BAND_PAD, top, "NET SALARY")
+    g.text(MARGIN + BAND_PAD, top + 18, slip.display("net_salary"),
+           "Sans-Bold", FIGURE, INK)
+    g.text(RIGHT - BAND_PAD, top + 18, CURRENCY_CODE, "Sans", FINE, INK_SOFT,
+           align="right")
+    g.text(MARGIN + BAND_PAD, top + 31, slip.amount_in_words, "Sans", FINE,
+           INK_SOFT)
     return top + 62
 
 
 def _company_contribution(g: Canvas, slip: Payslip, top: float) -> None:
     """Employer-side figures, aligned to the same two columns as the breakdown."""
-    g.text(MARGIN, top, "COMPANY CONTRIBUTION", "Sans-Bold", 6.8, INK_SOFT)
-    top += 14
+    g.micro(MARGIN, top, "COMPANY CONTRIBUTION")
+    top += SPACE_MD
     for x, (label, field) in zip((MARGIN, COL_RIGHT_X), COMPANY_LINES):
-        g.text(x, top, label, "Sans", 8, INK_SOFT)
-        g.text(x, top + 13, slip.display(field), "Sans-Bold", 10, INK)
+        g.text(x, top, label, "Sans", BODY, INK_SOFT)
+        g.text(x, top + 13, slip.display(field), "Sans-Bold", LEAD, INK)
 
 
 def _footer(g: Canvas) -> None:
     """Copyright left, generated-document note right, on one baseline."""
     foot = PAGE_H - 48
     g.rule(MARGIN, foot - 12, RIGHT, RULE)
-    g.text(MARGIN, foot, FOOTER_COPYRIGHT, "Sans", 6.8, INK_SOFT)
-    g.text(RIGHT, foot, FOOTER_NOTE, "Sans", 6.8, INK_SOFT, align="right")
+    g.text(MARGIN, foot, FOOTER_COPYRIGHT, "Sans", FINE, INK_SOFT)
+    g.text(RIGHT, foot, FOOTER_NOTE, "Sans", FINE, INK_SOFT, align="right")
