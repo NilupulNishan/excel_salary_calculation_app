@@ -157,7 +157,7 @@ class Api:
                 "designation": slip.designation,
                 "net": slip.display("net_salary"),
                 "period": slip.period,
-                "sourceRef": slip.source_ref,
+                "sourceRow": slip.source_row,
                 "missing": missing,
                 "ready": not missing,
                 "warnings": consistency_warnings(slip),
@@ -191,6 +191,7 @@ class Api:
         merged.update(data or {})
         updated = Payslip.from_dict(merged)
         updated.source_ref = slip.source_ref
+        updated.source_row = slip.source_row
         self.slips[index] = updated
         return {
             "ok": True,

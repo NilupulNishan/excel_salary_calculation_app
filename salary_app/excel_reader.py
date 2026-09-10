@@ -315,6 +315,7 @@ def _build_slips(rows, header_row, column_map, month, year, path) -> list[Paysli
         slips.append(Payslip(
             month=month, year=year,
             source_ref=f"{path.name}!row {offset}",
+            source_row=offset,
             **values,
         ))
     return slips

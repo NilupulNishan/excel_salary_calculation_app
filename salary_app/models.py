@@ -107,6 +107,10 @@ class Payslip:
     #: error messages so a bad figure can be traced back to its cell.
     source_ref: str = ""
 
+    #: The same origin as a bare row number. The UI shows this instead of the
+    #: full ref, which repeats the file name once per employee.
+    source_row: int = 0
+
     def __post_init__(self) -> None:
         """Normalise on construction so nothing downstream sees a raw str.
 

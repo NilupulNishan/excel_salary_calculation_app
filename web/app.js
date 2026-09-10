@@ -128,8 +128,9 @@ function showUploadError(message) {
 function onLoaded(result) {
   state.employees = result.employees || [];
   $('list-file').textContent = result.file || '';
-  $('list-sheet').textContent =
-    `Sheet "${result.sheet}" · header row ${result.headerRow} · ${state.employees.length} employees`;
+  // Which sheet was picked is actionable — the header row it found is not, and
+  // the count is already stated over the list.
+  $('list-sheet').textContent = `Sheet "${result.sheet}"`;
   renderList();
   show('screen-list');
 }
@@ -183,7 +184,9 @@ function renderList() {
 
     const sub = document.createElement('div');
     sub.className = 'row-sub';
-    sub.textContent = [emp.number && `No ${emp.number}`, emp.designation, emp.sourceRef]
+    // The row number, not the full source ref: the file name is in the title
+    // bar already, and repeating it once per employee is pure noise.
+    sub.textContent = [emp.number, emp.designation, emp.sourceRow && `Row ${emp.sourceRow}`]
       .filter(Boolean).join('  ·  ');
 
     main.append(name, sub);

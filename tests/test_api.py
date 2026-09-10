@@ -112,6 +112,14 @@ def test_incomplete_rows_are_flagged_not_hidden(loaded):
     assert "Employee Name" in rows[1]["missing"]
 
 
+def test_list_rows_carry_a_bare_row_number(loaded):
+    """The list shows where a row came from without repeating the file name."""
+    rows = loaded.list_employees()
+    assert rows[0]["sourceRow"] == loaded.slips[0].source_row
+    assert rows[0]["sourceRow"] > 0
+    assert "sourceRef" not in rows[0]
+
+
 # --- review ---------------------------------------------------------------
 
 def test_get_slip_returns_a_preview_image(loaded):
