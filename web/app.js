@@ -192,12 +192,54 @@ function renderList() {
     net.className = 'row-net';
     net.textContent = emp.net;
 
+    // The whole row opens Review; the button is the row's action.
+    row.tabIndex = 0;
+    row.setAttribute('role', 'button');
+    row.setAttribute('aria-label', `Review ${emp.name}`);
+    row.addEventListener('click', () => openReview(i));
+    row.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); openReview(i); }
+    });
+
     const button = document.createElement('button');
     button.className = 'btn btn-ghost btn-small';
-    button.textContent = 'Review';
-    button.addEventListener('click', () => openReview(i));
+    button.textContent = 'Download PDF';
 
-    row.append(no, main, net, button);
+    if (emp.ready) {
+      button.addEventListener('click', (e) => {
+        // Without this the row's handler also fires and navigates away
+        // mid-download.
+        e.stopPropagation();
+        downloadFor(i, button);
+      });
+    } else {
+      // Deliberately NOT the disabled attribute: a disabled button swallows
+      // the click entirely, so the one row you need to open is the one that
+      // ignores you. It looks unavailable, and says why.
+      button.classList.add('is-blocked');
+      button.setAttribute('aria-disabled', 'true');
+      button.title = `Missing: ${emp.missing.join(', ')}`;
+      button.addEventListener('click', (e) => {
+        e.stopPropagation();
+        toast(`Fill in ${emp.missing.join(', ')} first`, true);
+        openReview(i);
+      });
+    }
+
+    const chevron = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+    chevron.setAttribute('class', 'row-go');
+    chevron.setAttribute('viewBox', '0 0 24 24');
+    chevron.setAttribute('aria-hidden', 'true');
+    const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+    path.setAttribute('d', 'M9 6l6 6-6 6');
+    path.setAttribute('fill', 'none');
+    path.setAttribute('stroke', 'currentColor');
+    path.setAttribute('stroke-width', '2');
+    path.setAttribute('stroke-linecap', 'round');
+    path.setAttribute('stroke-linejoin', 'round');
+    chevron.appendChild(path);
+
+    row.append(no, main, net, button, chevron);
     container.appendChild(row);
   });
 
@@ -340,6 +382,24 @@ function alertBanner(cls, title, body) {
 
 /* ---------- actions ---------- */
 
+/** Export one slip and make the result impossible to miss.
+ *
+ * Shared by the list row and the review screen so both give the same
+ * feedback: a lingering path, then Explorer opened with the file selected.
+ */
+async function downloadFor(index, button) {
+  const label = button ? button.textContent : null;
+  if (button) { button.disabled = true; button.textContent = 'Saving…'; }
+  try {
+    const result = await call(() => api().export_one(index));
+    if (!result) return;
+    toast(`Saved to ${result.path}`, false, 8000);
+    call(() => api().reveal(result.path));
+  } finally {
+    if (button) { button.disabled = false; button.textContent = label; }
+  }
+}
+
 async function exportAll() {
   const button = $('btn-export-all');
   button.disabled = true;
@@ -366,20 +426,8 @@ function initEvents() {
   $('btn-open-folder').addEventListener('click', () => call(() => api().open_folder()));
 
   $('btn-download').addEventListener('click', async () => {
-    await saveNow();
-    const button = $('btn-download');
-    button.disabled = true;
-    try {
-      const result = await call(() => api().export_one(state.index));
-      if (!result) return;
-      // The old version only flashed a 3.5s toast, so a successful save looked
-      // like nothing happened. Linger, and open Explorer with the file
-      // selected so it is unmistakably there.
-      toast(`Saved to ${result.path}`, false, 8000);
-      call(() => api().reveal(result.path));
-    } finally {
-      button.disabled = false;
-    }
+    await saveNow();                       // flush any pending form edits
+    await downloadFor(state.index, $('btn-download'));
   });
 
   $('btn-print').addEventListener('click', async () => {

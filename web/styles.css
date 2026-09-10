@@ -135,6 +135,28 @@ html, body {
 }
 .row:last-child { border-bottom: none; }
 .row:nth-child(even) { background: var(--band); }
+
+/* The whole row opens Review, so it has to read as clickable -- otherwise
+   the affordance is invisible and people only ever use the button.
+   These rules come after :nth-child so hover wins over the zebra stripe. */
+.row { cursor: pointer; }
+.row:hover, .row:focus-visible { background: var(--band-deep); outline: none; }
+.row:focus-visible { box-shadow: inset 3px 0 0 var(--cyan-deep); }
+.row-go {
+  width: 16px; height: 16px; flex: 0 0 auto;
+  color: var(--ink-soft); opacity: .45; transition: opacity .12s, transform .12s;
+}
+.row:hover .row-go, .row:focus-visible .row-go {
+  opacity: 1; transform: translateX(2px);
+}
+
+/* Looks unavailable, still clickable -- it opens Review and says what is
+   missing, rather than silently ignoring the click. */
+.btn.is-blocked {
+  opacity: .45;
+  border-style: dashed;
+}
+.btn.is-blocked:hover { background: var(--danger-bg); border-color: var(--danger-border); }
 .row-no {
   width: 26px; color: var(--ink-soft); font-variant-numeric: tabular-nums;
   font-size: 13px;
