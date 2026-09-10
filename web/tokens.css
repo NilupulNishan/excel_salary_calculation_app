@@ -1,0 +1,37 @@
+/* GENERATED FILE -- DO NOT EDIT.
+ *
+ * Written by tools/make_tokens.py from the palette in
+ * salary_app/pdf/theme.py, which is the single source of truth for colour
+ * across the app chrome and the payslip PDF.
+ *
+ * To change a colour, edit theme.PALETTE and re-run:
+ *     .venv\Scripts\python.exe tools\make_tokens.py
+ */
+
+:root {
+  /* palette -- from salary_app/pdf/theme.py */
+  --brand-cyan:     #00CFFF;
+  --brand-deep:     #0B7FA8;
+  --ink:            #232323;
+  --ink-soft:       #5A5F66;
+  --rule:           #D8DEE4;
+  --band:           #F4F7F9;
+  --band-deep:      #E8F6FC;
+  --surface:        #FCFDFE;
+  --surface-sunken: #EEF1F4;
+  --border-soft:    #C3CCD4;
+  --danger:         #B4342B;
+  --danger-bg:      #FDF3F2;
+  --danger-border:  #F3D3D0;
+  --warn:           #9A6700;
+  --warn-bg:        #FDF7E6;
+
+  /* radii */
+  --radius-control:   6px;
+  --radius-container: 8px;
+  --radius-large:     12px;
+  --radius-pill:      999px;
+
+  --font: "Segoe UI", system-ui, -apple-system, sans-serif;
+  --scrim: rgba(35, 35, 35, .82);
+}

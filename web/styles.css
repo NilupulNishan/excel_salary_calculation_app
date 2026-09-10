@@ -1,18 +1,20 @@
 /* Softvil Salary Slips -- app chrome.
-   Palette matches the payslip: cyan #00CFFF accent, #232323 ink. */
+ *
+ * Colours, radii and the font stack come from web/tokens.css, which is
+ * GENERATED from the palette in salary_app/pdf/theme.py -- the same source the
+ * payslip renders from. Do not add a colour or a radius here; add it to
+ * theme.PALETTE and re-run tools/make_tokens.py, or the two surfaces drift
+ * (they already had: --rule was #E2E8ED here and #D8DEE4 in the PDF).
+ *
+ * Brand cyan is 1.85:1 on white and is never used for text on either surface
+ * -- only rules, borders and accents. tests/test_design_tokens.py asserts it.
+ */
 
 :root {
-  --cyan: #00cfff;
-  --cyan-deep: #0b7fa8;
-  --ink: #232323;
-  --ink-soft: #5a5f66;
-  --rule: #e2e8ed;
-  --band: #f4f7f9;
-  --band-deep: #e8f6fc;
-  --danger: #b4342b;
-  --warn: #9a6700;
-  --radius: 8px;
-  --font: "Segoe UI", system-ui, -apple-system, sans-serif;
+  /* Aliases kept so the older cyan names still read naturally in rules
+     below; both point at the generated tokens. */
+  --cyan: var(--brand-cyan);
+  --cyan-deep: var(--brand-deep);
 }
 
 * { box-sizing: border-box; }
@@ -34,7 +36,7 @@ html, body {
 .btn {
   font: inherit;
   border: 1px solid transparent;
-  border-radius: 6px;
+  border-radius: var(--radius-control);
   padding: 8px 16px;
   cursor: pointer;
   transition: background .12s, border-color .12s;
@@ -65,11 +67,11 @@ html, body {
 .upload-wrap .sub { color: var(--ink-soft); margin: 0 0 20px; font-size: 13px; }
 
 .dropzone {
-  border: 2px dashed #c3ccd4;
-  border-radius: 14px;
+  border: 2px dashed var(--border-soft);
+  border-radius: var(--radius-large);
   padding: 30px 24px;
   cursor: pointer;
-  background: #fcfdfe;
+  background: var(--surface);
   transition: border-color .15s, background .15s;
 }
 .dropzone:hover, .dropzone:focus-visible {
@@ -94,7 +96,7 @@ html, body {
 .os-row { display: flex; align-items: center; gap: 10px; }
 .os-path {
   flex: 1; min-width: 0; font-size: 13px;
-  padding: 7px 10px; border: 1px solid var(--rule); border-radius: 5px;
+  padding: 7px 10px; border: 1px solid var(--rule); border-radius: var(--radius-control);
   background: var(--band); color: var(--ink);
   overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
   direction: rtl; text-align: left;   /* keep the folder name visible when long */
@@ -102,8 +104,8 @@ html, body {
 .os-hint { font-size: 12px; color: var(--ink-soft); margin-top: 6px; min-height: 15px; }
 
 .error {
-  color: var(--danger); background: #fdf3f2; border: 1px solid #f3d3d0;
-  border-radius: var(--radius); padding: 12px 14px; margin-top: 20px;
+  color: var(--danger); background: var(--danger-bg); border: 1px solid var(--danger-border);
+  border-radius: var(--radius-container); padding: 12px 14px; margin-top: 20px;
   text-align: left; white-space: pre-wrap;
 }
 .busy { color: var(--ink-soft); margin-top: 18px; }
@@ -126,7 +128,7 @@ html, body {
 .list-head h2 { font-size: 17px; margin: 0; }
 .count { color: var(--ink-soft); font-size: 13px; }
 
-.rows { border: 1px solid var(--rule); border-radius: var(--radius); overflow: hidden; }
+.rows { border: 1px solid var(--rule); border-radius: var(--radius-container); overflow: hidden; }
 .row {
   display: flex; align-items: center; gap: 14px;
   padding: 12px 16px; border-bottom: 1px solid var(--rule); background: #fff;
@@ -146,14 +148,14 @@ html, body {
   min-width: 110px;
 }
 .badge {
-  display: inline-block; font-size: 11px; padding: 2px 7px; border-radius: 10px;
+  display: inline-block; font-size: 11px; padding: 2px 7px; border-radius: var(--radius-pill);
   margin-left: 6px;
 }
-.badge-missing { background: #fdf3f2; color: var(--danger); }
-.badge-warn { background: #fdf7e6; color: var(--warn); }
+.badge-missing { background: var(--danger-bg); color: var(--danger); }
+.badge-warn { background: var(--warn-bg); color: var(--warn); }
 
 .note {
-  margin-top: 16px; padding: 12px 14px; border-radius: var(--radius);
+  margin-top: 16px; padding: 12px 14px; border-radius: var(--radius-container);
   background: var(--band); color: var(--ink-soft); font-size: 13px;
   white-space: pre-wrap;
 }
@@ -169,7 +171,7 @@ html, body {
   padding: 18px 20px; border-right: 1px solid var(--rule);
 }
 .preview-pane {
-  flex: 1; overflow: auto; background: #eef1f4; padding: 22px;
+  flex: 1; overflow: auto; background: var(--surface-sunken); padding: 22px;
   display: flex; justify-content: center; align-items: flex-start;
 }
 .preview-frame { position: relative; }
@@ -179,8 +181,8 @@ html, body {
 }
 .preview-busy {
   position: absolute; top: 10px; right: 10px;
-  background: rgba(35,35,35,.82); color: #fff;
-  padding: 5px 11px; border-radius: 20px; font-size: 12px;
+  background: var(--scrim); color: #fff;
+  padding: 5px 11px; border-radius: var(--radius-pill); font-size: 12px;
 }
 
 fieldset { border: none; margin: 0 0 18px; padding: 0; }
@@ -194,26 +196,26 @@ legend {
 .field label { flex: 0 0 148px; font-size: 13px; color: var(--ink-soft); }
 .field input {
   flex: 1; min-width: 0; font: inherit; padding: 6px 9px;
-  border: 1px solid var(--rule); border-radius: 5px; background: #fff;
+  border: 1px solid var(--rule); border-radius: var(--radius-control); background: #fff;
 }
 .field input:focus {
   outline: none; border-color: var(--cyan); box-shadow: 0 0 0 3px var(--band-deep);
 }
 .field.is-money input { text-align: right; font-variant-numeric: tabular-nums; }
-.field.is-required input:placeholder-shown { border-color: #f0c9c5; }
+.field.is-required input:placeholder-shown { border-color: var(--danger-border); }
 
 .alert {
-  border-radius: var(--radius); padding: 10px 12px; margin-bottom: 14px;
+  border-radius: var(--radius-container); padding: 10px 12px; margin-bottom: 14px;
   font-size: 13px; line-height: 1.45;
 }
-.alert-missing { background: #fdf3f2; color: var(--danger); }
-.alert-warn { background: #fdf7e6; color: var(--warn); }
+.alert-missing { background: var(--danger-bg); color: var(--danger); }
+.alert-warn { background: var(--warn-bg); color: var(--warn); }
 .alert strong { display: block; margin-bottom: 3px; }
 
 /* toast ------------------------------------------------------------------ */
 .toast {
   position: fixed; left: 50%; bottom: 26px; transform: translateX(-50%);
-  background: var(--ink); color: #fff; padding: 11px 18px; border-radius: 22px;
+  background: var(--ink); color: #fff; padding: 11px 18px; border-radius: var(--radius-pill);
   font-size: 13px; max-width: 78vw; box-shadow: 0 4px 18px rgba(0,0,0,.24);
   z-index: 50; white-space: pre-wrap; text-align: center;
 }
