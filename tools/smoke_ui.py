@@ -79,6 +79,46 @@ def drive(window) -> None:
                 "document.getElementById('list-note').hidden === false")
             check("incomplete-rows note shown", note is True)
 
+            # 5b. the row itself is the way into Review, and the button is
+            # now the row's action rather than its navigation.
+            shape = window.evaluate_js("""
+                (() => {
+                  const row = document.querySelector('#employee-rows .row');
+                  const btn = row.querySelector('button');
+                  return {
+                    rowRole: row.getAttribute('role'),
+                    rowTab: row.tabIndex,
+                    label: btn.textContent,
+                    blocked: btn.getAttribute('aria-disabled'),
+                    reason: btn.title,
+                    chevron: !!row.querySelector('.row-go'),
+                    pointer: getComputedStyle(row).cursor,
+                  };
+                })()
+            """)
+            check("row is a button target",
+                  shape["rowRole"] == "button" and shape["rowTab"] == 0,
+                  f"role={shape['rowRole']} tabindex={shape['rowTab']}")
+            check("row looks clickable",
+                  shape["pointer"] == "pointer" and shape["chevron"],
+                  f"cursor={shape['pointer']} chevron={shape['chevron']}")
+            check("button is now Download PDF",
+                  shape["label"] == "Download PDF", shape["label"])
+            check("incomplete row blocks the download",
+                  shape["blocked"] == "true" and "Missing" in (shape["reason"] or ""),
+                  f"aria-disabled={shape['blocked']} title={shape['reason']!r}")
+
+            # 5c. clicking the ROW (not the button) navigates
+            window.evaluate_js(
+                "document.querySelector('#employee-rows .row').click()")
+            time.sleep(2.0)
+            check("clicking the row opens Review",
+                  window.evaluate_js(
+                      "document.querySelector('.screen.is-active').id")
+                  == "screen-review")
+            window.evaluate_js("renderList(); show('screen-list')")
+            time.sleep(0.4)
+
             # 6. open review for one employee -> preview image must appear
             window.evaluate_js("openReview(2)")
             time.sleep(2.5)
