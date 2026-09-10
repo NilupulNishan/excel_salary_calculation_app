@@ -1,0 +1,119 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <style>
+    body { margin: 0; font-family: "Segoe UI", system-ui, sans-serif;
+           color: #232323; background: #ffffff; }
+    a { color: #0B7FA8; } a:hover { color: #095F7E; }
+    .mono { font-family: Consolas, "Cascadia Mono", monospace; }
+  </style>
+</helmet>
+
+<div style="padding: 44px 48px; display: flex; flex-direction: column; gap: 26px">
+
+  <div style="display: flex; flex-direction: column; gap: 6px">
+    <div style="font-size: 11px; font-weight: 700; letter-spacing: .09em;
+                text-transform: uppercase; color: #5A5F66">Column grid</div>
+    <div style="font-size: 26px; font-weight: 300; line-height: 1.15">Back on the page axis</div>
+    <div style="width: 52px; height: 3px; background: #00CFFF; margin-top: 6px"></div>
+    <div style="font-size: 13px; color: #5A5F66; margin-top: 6px; max-width: 66ch;
+                text-wrap: pretty">
+      A4 at 42pt margins gives two columns of 244.64pt with a 22pt gutter. Everything on
+      the page hangs off those two axes &mdash; except, until now, the employee strip.
+    </div>
+  </div>
+
+  <!-- BEFORE -->
+  <div style="display: flex; flex-direction: column; gap: 9px">
+    <div style="font-size: 11px; font-weight: 700; letter-spacing: .06em;
+                text-transform: uppercase; color: #B4342B">Before &middot; second field 33.4pt off</div>
+
+    <div style="position: relative; height: 132px; background: #FCFDFE;
+                border: 1px solid #D8DEE4; border-radius: 8px">
+      <!-- axes -->
+      <div style="position: absolute; left: 42px; top: 0; bottom: 0; width: 1px;
+                  background: #00CFFF"></div>
+      <div style="position: absolute; left: 308px; top: 0; bottom: 0; width: 1px;
+                  background: #00CFFF"></div>
+      <!-- the off-grid field -->
+      <div style="position: absolute; left: 342px; top: 0; bottom: 0; width: 1px;
+                  background: #B4342B"></div>
+      <!-- the gap it left -->
+      <div style="position: absolute; left: 309px; top: 22px; width: 33px; height: 22px;
+                  background: #FDF3F2; border-left: 1px solid #B4342B;
+                  border-right: 1px solid #B4342B"></div>
+      <div style="position: absolute; left: 350px; top: 24px; font-size: 11px;
+                  color: #B4342B" class="mono">33.4pt drift</div>
+
+      <div style="position: absolute; left: 56px; top: 58px; font-size: 11px;
+                  font-weight: 700; letter-spacing: .06em; color: #5A5F66">EMPLOYEE</div>
+      <div style="position: absolute; left: 56px; top: 74px; font-size: 14px">Nilupul Kodikara</div>
+      <div style="position: absolute; left: 356px; top: 58px; font-size: 11px;
+                  font-weight: 700; letter-spacing: .06em; color: #B4342B">EMP NO</div>
+      <div style="position: absolute; left: 356px; top: 74px; font-size: 14px">70</div>
+
+      <div style="position: absolute; left: 42px; top: 104px; font-size: 10px;
+                  color: #5A5F66" class="mono">42</div>
+      <div style="position: absolute; left: 300px; top: 104px; font-size: 10px;
+                  color: #5A5F66" class="mono">308.64</div>
+      <div style="position: absolute; left: 336px; top: 104px; font-size: 10px;
+                  color: #B4342B" class="mono">342</div>
+    </div>
+  </div>
+
+  <!-- AFTER -->
+  <div style="display: flex; flex-direction: column; gap: 9px">
+    <div style="font-size: 11px; font-weight: 700; letter-spacing: .06em;
+                text-transform: uppercase; color: #1B7F4B">After &middot; one column pitch apart</div>
+
+    <div style="position: relative; height: 132px; background: #FCFDFE;
+                border: 1px solid #D8DEE4; border-radius: 8px">
+      <div style="position: absolute; left: 42px; top: 0; bottom: 0; width: 1px;
+                  background: #00CFFF"></div>
+      <div style="position: absolute; left: 308px; top: 0; bottom: 0; width: 1px;
+                  background: #00CFFF"></div>
+
+      <!-- equal 14pt inset from each axis -->
+      <div style="position: absolute; left: 42px; top: 22px; width: 14px; height: 22px;
+                  background: #E8F6FC"></div>
+      <div style="position: absolute; left: 308px; top: 22px; width: 14px; height: 22px;
+                  background: #E8F6FC"></div>
+      <div style="position: absolute; left: 60px; top: 24px; font-size: 11px;
+                  color: #0B7FA8" class="mono">14pt inset</div>
+      <div style="position: absolute; left: 326px; top: 24px; font-size: 11px;
+                  color: #0B7FA8" class="mono">14pt inset</div>
+
+      <div style="position: absolute; left: 56px; top: 58px; font-size: 11px;
+                  font-weight: 700; letter-spacing: .06em; color: #5A5F66">EMPLOYEE</div>
+      <div style="position: absolute; left: 56px; top: 74px; font-size: 14px">Nilupul Kodikara</div>
+      <div style="position: absolute; left: 322px; top: 58px; font-size: 11px;
+                  font-weight: 700; letter-spacing: .06em; color: #5A5F66">EMP NO</div>
+      <div style="position: absolute; left: 322px; top: 74px; font-size: 14px">70</div>
+
+      <div style="position: absolute; left: 42px; top: 104px; font-size: 10px;
+                  color: #5A5F66" class="mono">42</div>
+      <div style="position: absolute; left: 300px; top: 104px; font-size: 10px;
+                  color: #5A5F66" class="mono">308.64</div>
+      <div style="position: absolute; left: 316px; top: 104px; font-size: 10px;
+                  color: #1B7F4B" class="mono">322.64</div>
+    </div>
+  </div>
+
+  <div style="background: #F4F7F9; border-radius: 8px; padding: 15px 18px;
+              font-size: 13px; color: #232323; line-height: 1.55; text-wrap: pretty">
+    Both fields now sit a fixed 14pt inside their own column axis, so the pair carries the
+    same rhythm as the Earnings and Deductions columns below &mdash; and
+    <span class="mono">COL_PITCH</span> is a named constant, so the next block to be added
+    inherits the grid instead of guessing at it.
+  </div>
+
+</div>
+</x-dc>
+</body>
+</html>

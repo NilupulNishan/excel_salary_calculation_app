@@ -10,6 +10,13 @@ build/
 dist/
 *.spec.bak
 
+# The seeded design canvas is a ~2.4 MB generated bundle of minified vendor
+# JS, rebuilt from design/*.dc.html whenever it is published. The sources are
+# tracked; the bundle is not -- one `git add -A` would put it in history for
+# good.
+design/*.html
+!design/*.dc.html
+
 # --- App output -----------------------------------------------------------
 out/
 *.tmp

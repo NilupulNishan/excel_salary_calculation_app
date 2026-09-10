@@ -1,0 +1,195 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <style>
+    body { margin: 0; font-family: "Segoe UI", system-ui, sans-serif;
+           color: #232323; background: #ffffff; }
+    a { color: #0B7FA8; } a:hover { color: #095F7E; }
+    .mono { font-family: Consolas, "Cascadia Mono", monospace; }
+  </style>
+</helmet>
+
+<div style="padding: 44px 48px; display: flex; flex-direction: column; gap: 34px">
+
+  <div style="display: flex; flex-direction: column; gap: 6px">
+    <div style="font-size: 11px; font-weight: 700; letter-spacing: .09em;
+                text-transform: uppercase; color: #5A5F66">Softvil Salary Slips</div>
+    <div style="font-size: 30px; font-weight: 300; line-height: 1.1">Design system</div>
+    <div style="width: 52px; height: 3px; background: #00CFFF; margin-top: 6px"></div>
+    <div style="font-size: 13px; color: #5A5F66; margin-top: 8px; max-width: 60ch;
+                text-wrap: pretty">
+      One source of truth for both surfaces. Colour is decided in
+      <span class="mono">theme.PALETTE</span> and generated into
+      <span class="mono">web/tokens.css</span>; the payslip and the app read the same values.
+    </div>
+  </div>
+
+  <!-- type scale -->
+  <div style="display: flex; flex-direction: column; gap: 12px">
+    <div style="font-size: 11px; font-weight: 700; letter-spacing: .09em;
+                text-transform: uppercase; color: #5A5F66;
+                border-bottom: 2px solid #00CFFF; padding-bottom: 7px">
+      Type scale &middot; six roles
+    </div>
+    <div style="font-size: 12px; color: #5A5F66; margin-bottom: 2px">
+      The payslip carried thirteen sizes. Four of them &mdash; 6.4, 6.5, 6.8 and 7 &mdash;
+      were all setting uppercase micro-labels.
+    </div>
+
+    <div style="display: grid; grid-template-columns: 112px 1fr 130px; gap: 0;
+                border: 1px solid #D8DEE4; border-radius: 8px; overflow: hidden">
+
+      <div style="padding: 13px 14px; background: #F4F7F9; font-size: 11px;
+                  font-weight: 700; letter-spacing: .06em; color: #5A5F66">ROLE</div>
+      <div style="padding: 13px 14px; background: #F4F7F9; font-size: 11px;
+                  font-weight: 700; letter-spacing: .06em; color: #5A5F66">SPECIMEN</div>
+      <div style="padding: 13px 14px; background: #F4F7F9; font-size: 11px;
+                  font-weight: 700; letter-spacing: .06em; color: #5A5F66">REPLACED</div>
+
+      <div style="padding: 15px 14px; border-top: 1px solid #D8DEE4" class="mono">
+        <div style="font-size: 12px; font-weight: 600">DISPLAY</div>
+        <div style="font-size: 11px; color: #5A5F66">30 pt</div></div>
+      <div style="padding: 15px 14px; border-top: 1px solid #D8DEE4;
+                  font-size: 30px; font-weight: 300">Payslip</div>
+      <div style="padding: 15px 14px; border-top: 1px solid #D8DEE4;
+                  font-size: 12px; color: #5A5F66" class="mono">30</div>
+
+      <div style="padding: 15px 14px; border-top: 1px solid #D8DEE4" class="mono">
+        <div style="font-size: 12px; font-weight: 600">FIGURE</div>
+        <div style="font-size: 11px; color: #5A5F66">19 pt</div></div>
+      <div style="padding: 15px 14px; border-top: 1px solid #D8DEE4;
+                  font-size: 19px; font-weight: 700">143,600.00</div>
+      <div style="padding: 15px 14px; border-top: 1px solid #D8DEE4;
+                  font-size: 12px; color: #5A5F66" class="mono">19</div>
+
+      <div style="padding: 15px 14px; border-top: 1px solid #D8DEE4" class="mono">
+        <div style="font-size: 12px; font-weight: 600">LEAD</div>
+        <div style="font-size: 11px; color: #5A5F66">10.5 pt</div></div>
+      <div style="padding: 15px 14px; border-top: 1px solid #D8DEE4;
+                  font-size: 14px">Nilupul Kodikara</div>
+      <div style="padding: 15px 14px; border-top: 1px solid #D8DEE4;
+                  font-size: 12px; color: #5A5F66" class="mono">10 &middot; 10.5</div>
+
+      <div style="padding: 15px 14px; border-top: 1px solid #D8DEE4" class="mono">
+        <div style="font-size: 12px; font-weight: 600">BODY</div>
+        <div style="font-size: 11px; color: #5A5F66">8.6 pt</div></div>
+      <div style="padding: 15px 14px; border-top: 1px solid #D8DEE4;
+                  font-size: 11.5px">Travelling Allowance &mdash; 35,000.00</div>
+      <div style="padding: 15px 14px; border-top: 1px solid #D8DEE4;
+                  font-size: 12px; color: #5A5F66" class="mono">8 &middot; 8.4 &middot; 8.6 &middot; 9</div>
+
+      <div style="padding: 15px 14px; border-top: 1px solid #D8DEE4" class="mono">
+        <div style="font-size: 12px; font-weight: 600">FINE</div>
+        <div style="font-size: 11px; color: #5A5F66">7.4 pt</div></div>
+      <div style="padding: 15px 14px; border-top: 1px solid #D8DEE4;
+                  font-size: 10px; color: #5A5F66">One Hundred Forty Three Thousand Six Hundred Rupees Only</div>
+      <div style="padding: 15px 14px; border-top: 1px solid #D8DEE4;
+                  font-size: 12px; color: #5A5F66" class="mono">6.8 &middot; 7 &middot; 7.4 &middot; 9</div>
+
+      <div style="padding: 15px 14px; border-top: 1px solid #D8DEE4" class="mono">
+        <div style="font-size: 12px; font-weight: 600">MICRO</div>
+        <div style="font-size: 11px; color: #5A5F66">6.8 pt &middot; +0.4 track</div></div>
+      <div style="padding: 15px 14px; border-top: 1px solid #D8DEE4;
+                  font-size: 9.5px; font-weight: 700; letter-spacing: .06em;
+                  color: #5A5F66">NET SALARY</div>
+      <div style="padding: 15px 14px; border-top: 1px solid #D8DEE4;
+                  font-size: 12px; color: #B4342B" class="mono">6.4 &middot; 6.5 &middot; 6.8 &middot; 7</div>
+    </div>
+  </div>
+
+  <!-- palette -->
+  <div style="display: flex; flex-direction: column; gap: 12px">
+    <div style="font-size: 11px; font-weight: 700; letter-spacing: .09em;
+                text-transform: uppercase; color: #5A5F66;
+                border-bottom: 2px solid #00CFFF; padding-bottom: 7px">
+      Palette &middot; contrast checked
+    </div>
+
+    <div style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px">
+
+      <div style="display: flex; flex-direction: column; gap: 7px">
+        <div style="height: 54px; background: #232323; border-radius: 8px"></div>
+        <div style="font-size: 12px; font-weight: 600">ink</div>
+        <div style="font-size: 11px; color: #5A5F66" class="mono">#232323 &middot; 15.0:1</div>
+      </div>
+
+      <div style="display: flex; flex-direction: column; gap: 7px">
+        <div style="height: 54px; background: #5A5F66; border-radius: 8px"></div>
+        <div style="font-size: 12px; font-weight: 600">ink-soft</div>
+        <div style="font-size: 11px; color: #5A5F66" class="mono">#5A5F66 &middot; 6.43:1</div>
+      </div>
+
+      <div style="display: flex; flex-direction: column; gap: 7px">
+        <div style="height: 54px; background: #0B7FA8; border-radius: 8px"></div>
+        <div style="font-size: 12px; font-weight: 600">brand-deep</div>
+        <div style="font-size: 11px; color: #5A5F66" class="mono">#0B7FA8 &middot; 4.55:1</div>
+      </div>
+
+      <div style="display: flex; flex-direction: column; gap: 7px">
+        <div style="height: 54px; background: #00CFFF; border-radius: 8px;
+                    display: flex; align-items: flex-end; padding: 8px;
+                    box-sizing: border-box">
+          <span style="font-size: 10px; font-weight: 700; color: #232323;
+                       background: #ffffff; padding: 2px 6px; border-radius: 999px">
+            never text</span>
+        </div>
+        <div style="font-size: 12px; font-weight: 600">brand-cyan</div>
+        <div style="font-size: 11px; color: #B4342B" class="mono">#00CFFF &middot; 1.85:1</div>
+      </div>
+
+      <div style="display: flex; flex-direction: column; gap: 7px">
+        <div style="height: 54px; background: #D8DEE4; border-radius: 8px"></div>
+        <div style="font-size: 12px; font-weight: 600">rule</div>
+        <div style="font-size: 11px; color: #5A5F66" class="mono">#D8DEE4 &middot; was 2 values</div>
+      </div>
+
+      <div style="display: flex; flex-direction: column; gap: 7px">
+        <div style="height: 54px; background: #F4F7F9; border: 1px solid #D8DEE4;
+                    border-radius: 8px; box-sizing: border-box"></div>
+        <div style="font-size: 12px; font-weight: 600">band</div>
+        <div style="font-size: 11px; color: #5A5F66" class="mono">#F4F7F9</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- radii -->
+  <div style="display: flex; flex-direction: column; gap: 12px">
+    <div style="font-size: 11px; font-weight: 700; letter-spacing: .09em;
+                text-transform: uppercase; color: #5A5F66;
+                border-bottom: 2px solid #00CFFF; padding-bottom: 7px">
+      Radii &middot; seven values to four roles
+    </div>
+    <div style="display: flex; gap: 16px; align-items: flex-end">
+      <div style="display: flex; flex-direction: column; gap: 7px; align-items: center">
+        <div style="width: 88px; height: 44px; background: #F4F7F9;
+                    border: 1px solid #D8DEE4; border-radius: 6px"></div>
+        <div style="font-size: 11px; color: #5A5F66" class="mono">control 6</div>
+      </div>
+      <div style="display: flex; flex-direction: column; gap: 7px; align-items: center">
+        <div style="width: 88px; height: 44px; background: #F4F7F9;
+                    border: 1px solid #D8DEE4; border-radius: 8px"></div>
+        <div style="font-size: 11px; color: #5A5F66" class="mono">container 8</div>
+      </div>
+      <div style="display: flex; flex-direction: column; gap: 7px; align-items: center">
+        <div style="width: 88px; height: 44px; background: #F4F7F9;
+                    border: 1px solid #D8DEE4; border-radius: 12px"></div>
+        <div style="font-size: 11px; color: #5A5F66" class="mono">large 12</div>
+      </div>
+      <div style="display: flex; flex-direction: column; gap: 7px; align-items: center">
+        <div style="width: 88px; height: 44px; background: #F4F7F9;
+                    border: 1px solid #D8DEE4; border-radius: 999px"></div>
+        <div style="font-size: 11px; color: #5A5F66" class="mono">pill 999</div>
+      </div>
+    </div>
+  </div>
+
+</div>
+</x-dc>
+</body>
+</html>

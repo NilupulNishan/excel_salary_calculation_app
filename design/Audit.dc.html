@@ -1,0 +1,153 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <style>
+    body { margin: 0; font-family: "Segoe UI", system-ui, sans-serif;
+           color: #232323; background: #ffffff; }
+    a { color: #0B7FA8; } a:hover { color: #095F7E; }
+    .mono { font-family: Consolas, "Cascadia Mono", monospace; }
+  </style>
+</helmet>
+
+<div style="padding: 44px 48px; display: flex; flex-direction: column; gap: 26px">
+
+  <div style="display: flex; flex-direction: column; gap: 6px">
+    <div style="font-size: 11px; font-weight: 700; letter-spacing: .09em;
+                text-transform: uppercase; color: #5A5F66">Consistency audit</div>
+    <div style="font-size: 26px; font-weight: 300; line-height: 1.15">What was found, and what changed</div>
+    <div style="width: 52px; height: 3px; background: #00CFFF; margin-top: 6px"></div>
+  </div>
+
+  <!-- already correct -->
+  <div style="background: #F4F7F9; border-radius: 8px; padding: 16px 18px;
+              display: flex; flex-direction: column; gap: 9px">
+    <div style="font-size: 11px; font-weight: 700; letter-spacing: .06em;
+                text-transform: uppercase; color: #5A5F66">Already correct &mdash; left alone</div>
+    <div style="font-size: 13px; line-height: 1.55; color: #232323; text-wrap: pretty">
+      Contrast already met WCAG AA on both surfaces. Brand cyan was already confined to
+      rules and bars, never text. Emphasis weights were already consistent at 600 and 700.
+      The <span class="mono">direction: rtl</span> on the folder path is a deliberate
+      trick to keep the tail of a long path visible &mdash; documented, not "fixed".
+    </div>
+  </div>
+
+  <!-- findings -->
+  <div style="display: flex; flex-direction: column; gap: 14px">
+
+    <div style="display: grid; grid-template-columns: 26px 1fr; gap: 14px;
+                border-bottom: 1px solid #D8DEE4; padding-bottom: 14px">
+      <div style="width: 26px; height: 26px; border-radius: 999px; background: #FDF3F2;
+                  color: #B4342B; font-size: 12px; font-weight: 700;
+                  display: flex; align-items: center; justify-content: center">1</div>
+      <div style="display: flex; flex-direction: column; gap: 5px">
+        <div style="font-size: 15px; font-weight: 600">One block sat off the page grid</div>
+        <div style="font-size: 13px; color: #5A5F66; line-height: 1.55; text-wrap: pretty">
+          The employee strip put its second field at <span class="mono">MARGIN + 300 = 342pt</span>,
+          while the page's right column axis is <span class="mono">308.64pt</span>.
+        </div>
+        <div style="font-size: 12px; margin-top: 3px" class="mono">
+          <span style="color: #B4342B">342.00</span>
+          <span style="color: #5A5F66"> &rarr; </span>
+          <span style="color: #1B7F4B">322.64</span>
+          <span style="color: #5A5F66"> &nbsp;one COL_PITCH from column one</span>
+        </div>
+      </div>
+    </div>
+
+    <div style="display: grid; grid-template-columns: 26px 1fr; gap: 14px;
+                border-bottom: 1px solid #D8DEE4; padding-bottom: 14px">
+      <div style="width: 26px; height: 26px; border-radius: 999px; background: #FDF3F2;
+                  color: #B4342B; font-size: 12px; font-weight: 700;
+                  display: flex; align-items: center; justify-content: center">2</div>
+      <div style="display: flex; flex-direction: column; gap: 5px">
+        <div style="font-size: 15px; font-weight: 600">Thirteen type sizes, four doing one job</div>
+        <div style="font-size: 13px; color: #5A5F66; line-height: 1.55; text-wrap: pretty">
+          Uppercase micro-labels were set at 6.4, 6.5, 6.8 and 7 &mdash; each call site chose
+          its own. Rows were 8.4 and their totals 8.6, a difference nobody can see, where
+          the weight already carried the distinction.
+        </div>
+        <div style="font-size: 12px; margin-top: 3px" class="mono">
+          <span style="color: #B4342B">13 sizes</span>
+          <span style="color: #5A5F66"> &rarr; </span>
+          <span style="color: #1B7F4B">6 named roles</span>
+        </div>
+      </div>
+    </div>
+
+    <div style="display: grid; grid-template-columns: 26px 1fr; gap: 14px;
+                border-bottom: 1px solid #D8DEE4; padding-bottom: 14px">
+      <div style="width: 26px; height: 26px; border-radius: 999px; background: #FDF3F2;
+                  color: #B4342B; font-size: 12px; font-weight: 700;
+                  display: flex; align-items: center; justify-content: center">3</div>
+      <div style="display: flex; flex-direction: column; gap: 5px">
+        <div style="font-size: 15px; font-weight: 600">The two surfaces disagreed on a colour</div>
+        <div style="font-size: 13px; color: #5A5F66; line-height: 1.55; text-wrap: pretty">
+          The hairline was <span class="mono">#E2E8ED</span> in the stylesheet and
+          <span class="mono">#D8DEE4</span> in the PDF: one role, two values, nothing
+          watching. Colour is now decided once and generated into the stylesheet.
+        </div>
+        <div style="font-size: 12px; margin-top: 3px" class="mono">
+          <span style="color: #B4342B">2 hand-kept lists</span>
+          <span style="color: #5A5F66"> &rarr; </span>
+          <span style="color: #1B7F4B">theme.PALETTE &rarr; tokens.css</span>
+        </div>
+      </div>
+    </div>
+
+    <div style="display: grid; grid-template-columns: 26px 1fr; gap: 14px;
+                border-bottom: 1px solid #D8DEE4; padding-bottom: 14px">
+      <div style="width: 26px; height: 26px; border-radius: 999px; background: #FDF7E6;
+                  color: #9A6700; font-size: 12px; font-weight: 700;
+                  display: flex; align-items: center; justify-content: center">4</div>
+      <div style="display: flex; flex-direction: column; gap: 5px">
+        <div style="font-size: 15px; font-weight: 600">A long job title would have escaped its band</div>
+        <div style="font-size: 13px; color: #5A5F66; line-height: 1.55; text-wrap: pretty">
+          The band was a fixed 62pt while the designation was drawn at
+          <span class="mono">top + 42</span> with 10.5 leading &mdash; a second line landed
+          at 52.5, below the band's edge at 48. Current titles fit on one line, so it had
+          never shown. The band is now sized from the wrapped text.
+        </div>
+      </div>
+    </div>
+
+    <div style="display: grid; grid-template-columns: 26px 1fr; gap: 14px">
+      <div style="width: 26px; height: 26px; border-radius: 999px; background: #FDF7E6;
+                  color: #9A6700; font-size: 12px; font-weight: 700;
+                  display: flex; align-items: center; justify-content: center">5</div>
+      <div style="display: flex; flex-direction: column; gap: 5px">
+        <div style="font-size: 15px; font-weight: 600">Fonts registered for a design that was never shipped</div>
+        <div style="font-size: 13px; color: #5A5F66; line-height: 1.55; text-wrap: pretty">
+          Palatino and Georgia were loaded at startup for two rejected candidates and never
+          drawn again &mdash; so a machine without Georgia crashed on a font the payslip
+          does not use. Removed, along with three unused colour tokens.
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <div style="border-top: 1px solid #D8DEE4; padding-top: 14px; display: flex; gap: 26px">
+    <div style="display: flex; flex-direction: column; gap: 3px">
+      <div style="font-size: 22px; font-weight: 600">171</div>
+      <div style="font-size: 11px; color: #5A5F66; letter-spacing: .04em">TESTS PASSING</div>
+    </div>
+    <div style="display: flex; flex-direction: column; gap: 3px">
+      <div style="font-size: 22px; font-weight: 600">17</div>
+      <div style="font-size: 11px; color: #5A5F66; letter-spacing: .04em">NEW, GUARDING THIS</div>
+    </div>
+    <div style="display: flex; flex-direction: column; gap: 3px">
+      <div style="font-size: 22px; font-weight: 600">0</div>
+      <div style="font-size: 11px; color: #5A5F66; letter-spacing: .04em">PAYROLL FIGURES COMPUTED</div>
+    </div>
+  </div>
+
+</div>
+</x-dc>
+</body>
+</html>
